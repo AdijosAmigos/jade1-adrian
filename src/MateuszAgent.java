@@ -8,7 +8,10 @@ import jade.domain.FIPAAgentManagement.*;
 import java.net.*;
 import java.io.*;
 
-public class ServiceAgent extends Agent {
+
+
+
+public class MateuszAgent extends Agent {
 	protected void setup () {
 		//services registration at DF
 		DFAgentDescription dfad = new DFAgentDescription();
@@ -18,16 +21,11 @@ public class ServiceAgent extends Agent {
 		sd1.setType("answers");
 		sd1.setName("wordnet");
 		//service no 2
-		ServiceDescription sd2 = new ServiceDescription();
-		sd2.setType("answers");
-		sd2.setName("dictionary");
-		//service no 3
 		ServiceDescription sd3 = new ServiceDescription();
 		sd3.setType("answers");
-		sd3.setName("polspa");
+		sd3.setName("polhol");
 		//add them all
 		dfad.addServices(sd1);
-		dfad.addServices(sd2);
 		dfad.addServices(sd3);
 		try {
 			DFService.register(this,dfad);
@@ -35,9 +33,8 @@ public class ServiceAgent extends Agent {
 			ex.printStackTrace();
 		}
 		
-		addBehaviour(new WordnetCyclicBehaviour(this));
-		addBehaviour(new DictionaryCyclicBehaviour(this));
-		addBehaviour(new DictOrg_DictionaryCyclicBehaviour(this));
+		addBehaviour(new WordnetCyclicBehaviour2(this));
+		addBehaviour(new DictOrg_DictionaryCyclicBehaviour2(this));
 		//doDelete();
 	}
 
@@ -86,11 +83,11 @@ public class ServiceAgent extends Agent {
 	}
 }
 
-class WordnetCyclicBehaviour extends CyclicBehaviour {
+class WordnetCyclicBehaviour2 extends CyclicBehaviour {
 
-	ServiceAgent agent;
+	MateuszAgent agent;
 
-	public WordnetCyclicBehaviour(ServiceAgent agent)
+	public WordnetCyclicBehaviour2(MateuszAgent agent)
 	{
 		this.agent = agent;
 	}
@@ -119,48 +116,16 @@ class WordnetCyclicBehaviour extends CyclicBehaviour {
 	}
 }
 
-class DictionaryCyclicBehaviour extends CyclicBehaviour {
+class DictOrg_DictionaryCyclicBehaviour2 extends CyclicBehaviour {
 
-	ServiceAgent agent;
+	MateuszAgent agent;
 
-	public DictionaryCyclicBehaviour(ServiceAgent agent) {
-		this.agent = agent;
-	}
-
-	public void action() {
-		MessageTemplate template = MessageTemplate.MatchOntology("dictionary");
-		ACLMessage message = agent.receive(template);
-		if (message == null) {
-			block();
-		}
-		else{
-			//process the incoming message
-			String content = message.getContent();
-			ACLMessage reply = message.createReply();
-			reply.setPerformative(ACLMessage.INFORM);
-			String response = "";
-			try {
-				response = agent.makeRequest("english", content);
-			}
-			catch (NumberFormatException ex){
-				response = ex.getMessage();
-			}
-			reply.setContent(response);
-			agent.send(reply);
-		}
-	}
-}
-
-class DictOrg_DictionaryCyclicBehaviour extends CyclicBehaviour {
-
-	ServiceAgent agent;
-
-	public DictOrg_DictionaryCyclicBehaviour(ServiceAgent agent) {
+	public DictOrg_DictionaryCyclicBehaviour2(MateuszAgent agent) {
 		this.agent = agent;
 	}
 
 	public void action(){
-		MessageTemplate template = MessageTemplate.MatchOntology("polspa");
+		MessageTemplate template = MessageTemplate.MatchOntology("polhol");
 		ACLMessage message = agent.receive(template);
 		if (message == null){
 			block();
@@ -172,7 +137,7 @@ class DictOrg_DictionaryCyclicBehaviour extends CyclicBehaviour {
 			reply.setPerformative(ACLMessage.INFORM);
 			String response = "";
 			try {
-				response = agent.makeRequest("fd-pol-spa", content);
+				response = agent.makeRequest("fd-pol-nld", content);
 			}
 			catch (NumberFormatException ex) {
 				response = ex.getMessage();
